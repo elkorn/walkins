@@ -1,9 +1,11 @@
 #!/bin/bash
 
 declare -A colors
-colors=([restore]="sgr0" [red]="1" [blue]="2" [yellow]="3")
-
-
+# Blue is really green... Thx Jenkins ;)
+colors=([red]=`tput setaf 2` [blue]=`tput setaf 2` [yellow]=`tput setaf 3`)
+bold_on=`tput bold`
+bold_off=`tput rmso`
+restore=`tput sgr0`
 function init() {
     if [ ! -f ./.credentials ] 
     then
@@ -20,6 +22,7 @@ function init() {
 }
 
 function main_loop() {
+    clear
     while [ true ]
     do
         i=0
@@ -29,14 +32,19 @@ function main_loop() {
 
         while [[ $job != "null" ]]
         do
-            color=${colors[$(echo $(echo $job | jq ".color") | sed -r 's/\"//g' | sed -r 's/_anime//g')]}
+            color=$(echo $(echo $job | jq ".color") | sed -r 's/\"//g')
             name=$(echo $job | jq ".name")
-            result+="$(tput setaf $color)${name}\n"
+            if [[ $color = *_anime* ]]
+            then
+                result+="${restore}@ "
+            fi
+
+            color=$(echo "$color" | sed -r 's/_anime//g')
+            result+="${colors[$color]}${name}\n"
             let i++
             job=$(echo $raw | jq ".jobs[$i]")
         done
-        clear
-        echo -e "$result"
+        echo -e "$(tput cup 0 0)$result"
         sleep 1
     done
 }
