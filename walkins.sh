@@ -40,7 +40,7 @@ function start_tracking_job() {
 function notify_build_status_changed() {
     if [[ "$2" == "blue" ]]
     then
-        notify-send 'Build is back to normal' "$1" -i "$CUR_PATH/happy.png"
+        notify-send 'Build succeeded' "$1" -i "$CUR_PATH/happy.png"
     else
         if [[ "$2" == "red" ]]
         then

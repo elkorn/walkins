@@ -27,4 +27,6 @@ For now there are a few things:
 * make notification system pluggable
 * make the `.walkinsrc` config better
 * decide on the config format
+* level up in bash and refactor the code so it's less horrible
 * ... something will crop up. :)
+
