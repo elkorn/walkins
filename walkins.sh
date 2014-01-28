@@ -23,13 +23,12 @@ function main_loop() {
     while [ true ]
     do
         i=0
-        raw=$(curl --silent -u $1 $2/api/json)
+        raw=$(curl --silent -u "$1" "$2/api/json")
         job=$(echo $raw | jq ".jobs[$i]")
         result=""
 
         while [[ $job != "null" ]]
         do
-            echo $(echo "$job" | jq ".color")
             color=${colors[$(echo $(echo $job | jq ".color") | sed -r 's/\"//g' | sed -r 's/_anime//g')]}
             name=$(echo $job | jq ".name")
             result+="$(tput setaf $color)${name}\n"
