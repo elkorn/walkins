@@ -13,8 +13,8 @@ These things are not configurable yet.
 Howto
 -------
 
-There are two things needed for walkins to walk:
-* a `.credentials` file containing your Jenkins credentials, placed within the main app directory. The contents of the file must be just `uername:password` in that exact format.
+There are two things you need to have *placed within the main app directory* for walkins to walk:
+* a `.credentials` file containing your Jenkins credentials. The contents of the file must be just `username:password` in that exact format.
 * a `.walkinsrc` file, containing the URL to the Jenkins view you want to track. This will most likely take a form similar to this: http://server.address/jenkins/view/the-name-of-your-view
 ** please do not leave a trailing slash... I wanna go to sleep :) it'll be fixed, promise!
 
