@@ -22,9 +22,10 @@ There are two things you need to have **placed within the main app directory** f
 Todo
 -------
 
-For now there are a few things:
+For now there are quite a few things:
 * fix the goddamn slash!
 * handle disabled builds
+* loosen the path dependencies
 * make notification system pluggable
 * make the `.walkinsrc` config better
 * decide on the config format
