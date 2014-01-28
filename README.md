@@ -9,6 +9,7 @@ Run it in the background to have notifications only.
 The project is super-duper alpha.
 Currently it's dependent on libnotify and it'll poll Jenkins every 30 seconds.
 These things are not configurable yet.
+It also **will not** handle disabled (gray) builds.
 
 Howto
 -------
@@ -25,6 +26,7 @@ Todo
 
 For now there are a few things:
 * fix the goddamn slash!
+* handle disabled builds
 * make notification system pluggable
 * make the `.walkinsrc` config better
 * decide on the config format
