@@ -9,6 +9,7 @@ bold_on=`tput bold`
 bold_off=`tput rmso`
 restore=`tput sgr0`
 reset_pos=`tput cup 0 0`
+CUR_PATH=$(pwd)
 
 function exists()
 {
@@ -26,7 +27,7 @@ function update_job_build_status() {
 }
 
 function update_job_progress() {
-    tracked_jobs["$1_building"]="$2"
+    tracked_jobs["$1_progress"]="$2"
 }
 
 function start_tracking_job() {
@@ -37,15 +38,15 @@ function start_tracking_job() {
 function notify_build_status_changed() {
     if [[ "$2" == "blue" ]]
     then
-        echo "$1: Build OK."
+        notify-send 'Build is back to normal' "$1" -i "$CUR_PATH/happy.png"
     else
         if [[ "$2" == "red" ]]
         then
-            echo "$1: Build Failed!"
+            notify-send 'Build failed!' "$1" -i "$CUR_PATH/scared.png"
         else
             if [[ "$2" == "yellow" ]]
             then
-                echo "$1: Build unstable!"
+                notify-send 'Build unstable!' "$1" -i "$CUR_PATH/faint.png"
             fi
         fi
     fi
@@ -54,12 +55,13 @@ function notify_build_status_changed() {
 function notify_job_progress_changed() {
     if [[ "$2" == "building" ]]
     then
-        echo "$1: Build started."
-    else
-        if [[ "$2" == "idle" ]] 
-            then
-            echo "$1: Build finished."
-        fi
+        notify-send 'Build started' "$1" -i "$CUR_PATH/happy.png"
+    # The build ends with a specific result so there is little sense in additional notification.
+    # else
+    #     if [[ "$2" == "idle" ]] 
+    #         then
+    #         notify-send 'Build finished' "$1" -i "$CUR_PATH/happy.png"
+    #     fi
     fi
 }
 
@@ -78,8 +80,11 @@ function handle_build_status_change() {
         return
     fi
 
-    notify_build_status_changed "$1" "$2" # TODO: Export this functionality to a plugin.
-    update_job_build_status "$1" "$2"
+    if [[ ${tracked_jobs["$1_status"]} != "$2" ]]
+    then
+        notify_build_status_changed "$1" "$2" # TODO: Export this functionality to a plugin.
+        update_job_build_status "$1" "$2"
+    fi
 }
 
 function handle_job_progress_change() {
@@ -97,8 +102,11 @@ function handle_job_progress_change() {
         return
     fi
 
-    notify_job_progress_changed "$1" "$2" # TODO: Export this functionality to a plugin.
-    update_job_progress "$1" "$2"
+    if [[ ${tracked_jobs["$1_progress"]} != "$2" ]]
+    then
+        notify_job_progress_changed "$1" "$2" # TODO: Export this functionality to a plugin.
+        update_job_progress "$1" "$2"
+    fi
 }
 
 
@@ -106,21 +114,21 @@ function track_job() {
     if [[ -z "$1" ]]
     then
         echo "Provide the name of the job to be tracked."
-        echo "Correct usage: start_tracking_job {job_name} {current_state} {is_currently_building}"
+        echo "Correct usage: start_tracking_job {job_name} {current_state} {is_currently_progress}"
         return
     fi
 
     if [[ -z "$2" ]]
     then
         echo "Provide the current state of the job whose to be tracked."
-        echo "Correct usage: start_tracking_job {job_name} {current_state} {is_currently_building}"
+        echo "Correct usage: start_tracking_job {job_name} {current_state} {is_currently_progress}"
         return
     fi
 
     if [[ -z "$3" ]]
     then
         echo "Provide the current building status of the job whose to be tracked."
-        echo "Correct usage: start_tracking_job {job_name} {current_state} {is_currently_building}"
+        echo "Correct usage: start_tracking_job {job_name} {current_state} {is_currently_progress}"
         return
     fi
 
@@ -150,6 +158,7 @@ function init() {
 
 function main_loop() {
     clear
+    x=0
     while [ true ]
     do
         i=0
@@ -167,6 +176,11 @@ function main_loop() {
                 progress="building"
                 result+="${restore}@ "
             fi
+            if [[ $x == 5 ]]
+            then
+                color="yellow"
+                let x++
+            fi
 
             color=$(echo "$color" | sed -r 's/_anime//g')
             track_job "$name" "$color" "$progress"
@@ -174,8 +188,9 @@ function main_loop() {
             let i++
             job=$(echo $raw | jq ".jobs[$i]")
         done
-        # clear
+        clear
         echo -e "$result"
+        let x++
         sleep 1
     done
 }
