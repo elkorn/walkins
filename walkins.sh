@@ -10,6 +10,8 @@ bold_off=`tput rmso`
 restore=`tput sgr0`
 reset_pos=`tput cup 0 0`
 CUR_PATH=$(pwd)
+job_status_change_notified=false
+job_finished=false
 
 function exists()
 {
@@ -56,12 +58,10 @@ function notify_job_progress_changed() {
     if [[ "$2" == "building" ]]
     then
         notify-send 'Build started' "$1" -i "$CUR_PATH/happy.png"
-    # The build ends with a specific result so there is little sense in additional notification.
-    # else
-    #     if [[ "$2" == "idle" ]] 
-    #         then
-    #         notify-send 'Build finished' "$1" -i "$CUR_PATH/happy.png"
-    #     fi
+        else if [[ "$2" == "idle" ]]
+        then
+            job_finished=true
+        fi
     fi
 }
 
@@ -84,6 +84,7 @@ function handle_build_status_change() {
     then
         notify_build_status_changed "$1" "$2" # TODO: Export this functionality to a plugin.
         update_job_build_status "$1" "$2"
+        job_status_change_notified=true
     fi
 }
 
@@ -108,7 +109,6 @@ function handle_job_progress_change() {
         update_job_progress "$1" "$2"
     fi
 }
-
 
 function track_job() {
     if [[ -z "$1" ]]
@@ -136,6 +136,14 @@ function track_job() {
     then
         handle_build_status_change "$1" "$2"
         handle_job_progress_change "$1" "$3"
+
+        if [[ "$job_finished" == true && "$job_status_change_notified" == false ]]
+        then
+            notify_build_status_changed "$1" "$2"
+        fi
+
+        job_status_change_notified=false
+        job_finished=false
     else
         start_tracking_job "$1" "$2" "$3"
     fi
@@ -176,11 +184,6 @@ function main_loop() {
                 progress="building"
                 result+="${restore}@ "
             fi
-            if [[ $x == 5 ]]
-            then
-                color="yellow"
-                let x++
-            fi
 
             color=$(echo "$color" | sed -r 's/_anime//g')
             track_job "$name" "$color" "$progress"
@@ -191,7 +194,7 @@ function main_loop() {
         clear
         echo -e "$result"
         let x++
-        sleep 1
+        sleep 30
     done
 }
 
