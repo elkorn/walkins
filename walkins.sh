@@ -1,9 +1,9 @@
 #!/bin/bash
 
-RESTORE=$(tput setaf sgr0)
-GREEN=$(tput setaf 2)
-RED=$(tput setaf 1)
-YELLOW=$(tput setaf 3)
+declare -A colors
+colors=([restore]="sgr0" [red]="1" [blue]="2" [yellow]="3")
+
+
 function init() {
     if [ ! -f ./.credentials ] 
     then
@@ -22,9 +22,22 @@ function init() {
 function main_loop() {
     while [ true ]
     do
-        jobs=$(curl --silent -u $1 $2 | jq ".jobs")
+        i=0
+        raw=$(curl --silent -u $1 $2/api/json)
+        job=$(echo $raw | jq ".jobs[$i]")
+        result=""
+
+        while [[ $job != "null" ]]
+        do
+            echo $(echo "$job" | jq ".color")
+            color=${colors[$(echo $(echo $job | jq ".color") | sed -r 's/\"//g' | sed -r 's/_anime//g')]}
+            name=$(echo $job | jq ".name")
+            result+="$(tput setaf $color)${name}\n"
+            let i++
+            job=$(echo $raw | jq ".jobs[$i]")
+        done
         clear
-        echo ${jobs[*]}
+        echo -e "$result"
         sleep 1
     done
 }
