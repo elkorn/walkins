@@ -9,9 +9,17 @@ bold_on=`tput bold`
 bold_off=`tput rmso`
 restore=`tput sgr0`
 reset_pos=`tput cup 0 0`
-CUR_PATH=$(pwd)
 job_status_change_notified=false
 job_finished=false
+
+function get_path() {
+    if [ -L $0 ]
+    then
+        CUR_PATH=$(dirname $(readlink -f $0))
+    else
+        CUR_PATH=$(dirname $0)
+    fi
+}
 
 function exists()
 {
@@ -150,14 +158,14 @@ function track_job() {
 }
 
 function init() {
-    if [ ! -f ./.credentials ]
+    if [ ! -f "$CUR_PATH/.credentials" ]
     then
-        echo ".credentials file not found. Sorry!"
+        echo ".credentials file not found. Sorry, but I can't stand that!"
         exit 1
     fi
-    if [ ! -f ./.walkinsrc ]
+    if [ ! -f "$CUR_PATH/.walkinsrc" ]
     then
-        echo ".walkinsrc file not found. Sorry!"
+        echo ".walkinsrc file not found. Sorry, but I can't stand that!"
         exit 2
     fi
 
@@ -165,8 +173,6 @@ function init() {
 }
 
 function main_loop() {
-    clear
-    x=0
     while [ true ]
     do
         i=0
@@ -178,6 +184,12 @@ function main_loop() {
         do
             color=$(echo $(echo $job | jq ".color") | sed -r 's/\"//g')
             name=$(echo $job | jq ".name" | sed -r 's/\"//g')
+            if ! exists "$color" in colors
+            then
+                echo "Unknown Jenkins status '$color' for job '$name'. Sorry, but I can't stand that!"
+                exit 3
+            fi
+
             progress="idle"
             if [[ $color = *_anime* ]]
             then
@@ -193,9 +205,9 @@ function main_loop() {
         done
         clear
         echo -e "$result"
-        let x++
         sleep 30
     done
 }
 
+get_path
 init
