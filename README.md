@@ -29,7 +29,7 @@ For now there are quite a few things:
 * handle disabled builds
 * loosen the path dependencies
 * make notification system pluggable
-* bundle `jq` with the project
+* migrate to [jsontool](http://trentm.com/json/)
 * make the `.walkinsrc` config better
 * decide on the config format
 * level up in bash and refactor the code so it's less horrible
