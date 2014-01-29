@@ -3,7 +3,7 @@ walkins
 
 A small Bash utility to watch Jenkins build statuses.
 
-Requires [jq](http://stedolan.github.io/jq/) to be configured as a command to run properly. `jq` is available on apt, yum and AUR. (let me know if you found it in another popular repository so I can specify it here!)
+Requires [jq](http://stedolan.github.io/jq/) to be configured as a command to run properly. `jq` is available on apt, yum and the AUR. (let me know if you found it in another popular repository so I can specify it here!)
 
 Run it in a console window to have an overview of the build statuses and what's currently being built.
 Run it in the background to have notifications only.
