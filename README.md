@@ -24,13 +24,5 @@ There are two things you need to have **placed within the main app directory** f
 Todo
 -------
 
-For now there are quite a few things:
-* fix the goddamn slash!
-* handle disabled builds
-* loosen the path dependencies
-* make notification system pluggable
-* make the `.walkinsrc` config better
-* decide on the config format
-* level up in bash and refactor the code so it's less horrible
-* ... something will crop up. :)
+See the [issues](https://github.com/elkorn/walkins/issues?state=open).
 
