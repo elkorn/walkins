@@ -3,6 +3,8 @@ walkins
 
 A small Bash utility to watch Jenkins build statuses.
 
+Requires http://stedolan.github.io/jq/ to be configured as a command to run properly.
+
 Run it in a console window to have an overview of the build statuses and what's currently being built.
 Run it in the background to have notifications only.
 
@@ -27,6 +29,7 @@ For now there are quite a few things:
 * handle disabled builds
 * loosen the path dependencies
 * make notification system pluggable
+* bundle `jq` with the project
 * make the `.walkinsrc` config better
 * decide on the config format
 * level up in bash and refactor the code so it's less horrible
