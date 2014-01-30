@@ -26,7 +26,8 @@ touch ~/.walkins/logfile
 touch ~/.walkins/.credentials
 echo "username:password" > ~/.walkins/.credentials
 
+
 touch ~/.walkins/.install-path
-echo "$(pwd)" > ~/.walkins/install-path
+echo "INSTALL_PATH=$(pwd)" > ~/.walkins/.install-path
 
 echo "Walkins configuration done! Fill out the ~/.walkins/.walkinsrc config file, run walkins command and enjoy the show!"

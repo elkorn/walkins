@@ -13,6 +13,10 @@ is_defined() {
     fi
 }
 
+source_util() {
+    . "$INSTALL_PATH/utils/$1"
+}
+
 is_sourced() {
     is_defined "$1"
     if [ $? -eq 1 ]
@@ -27,24 +31,25 @@ is_sourced() {
 }
 
 source_utils() {
-    . ./utils/check_paths.sh
+    source_util "check_paths.sh"
     is_sourced "check_paths" "check_paths.sh"
-    . ./utils/logger.sh
+    source_util "logger.sh"
     is_sourced "log" "logger.sh"
-    . ./utils/read_config.sh
+    source_util "read_config.sh"
     is_sourced "read_config" "read_config.sh"
-    . ./utils/job_tracker.sh
+    source_util "job_tracker.sh"
     is_sourced "start_tracking_job" "job_tracker.sh"
     is_sourced "update_job_build_status" "job_tracker.sh"
     is_sourced "update_job_progress" "job_tracker.sh"
     is_sourced "handle_build_status_change" "job_tracker.sh"
     is_sourced "handle_job_progress_change" "job_tracker.sh"
     is_sourced "track_job" "job_tracker.sh"
+    source_util "error_handler.sh"
+    is_sourced "error_out" "error_handler.sh"
+
     . $NOTIFIER_PATH
     is_sourced "notify_build_status_changed" "$NOTIFIER_PATH"
     is_sourced "notify_job_progress_changed" "$NOTIFIER_PATH"
     is_sourced "notify_app_started" "$NOTIFIER_PATH"
     is_sourced "notify_error" "$NOTIFIER_PATH"
-    . ./utils/error_hadler.sh 
-    is_sourced "error_out" "error_handler.sh"
 }

@@ -24,7 +24,8 @@ exists()
 
 
 init() {
-    source ./utils/sourcerer.sh
+    source "$WALKINS_PATH/.install-path"
+    source $INSTALL_PATH/utils/sourcerer.sh
     source_utils
     check_paths
     read_config
@@ -32,11 +33,6 @@ init() {
     main_loop
 }
 
-error_out() {
-    echo "I have failed you miserably! I'm so sorry. :( Check ~/.walkins/logfile for details."
-    notify_error
-    exit 3
-}
 
 main_loop() {
     while [ true ]
