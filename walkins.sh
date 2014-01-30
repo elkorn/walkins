@@ -11,13 +11,40 @@ restore=`tput sgr0`
 reset_pos=`tput cup 0 0`
 job_status_change_notified=false
 job_finished=false
+WALKINS_PATH=~/.walkins
+ASSETS_PATH=$WALKINS_PATH/assets
+URL=""
+INTERVAL=30
 
-function get_path() {
-    if [ -L $0 ]
+function read_config() {
+    config=$(cat "$WALKINS_PATH/.walkinsrc")
+    URL=$(echo "$config" | jq ".url" | sed -r 's/\"//g')
+    INTERVAL=$(echo "$config" | jq ".interval")
+    CREDENTIALS=$(cat "$WALKINS_PATH/.credentials")
+}
+
+function check_paths() {
+    if [ ! -d "$WALKINS_PATH" ]
     then
-        CUR_PATH=$(dirname $(readlink -f $0))
-    else
-        CUR_PATH=$(dirname $0)
+        echo "$WALKINS_PATH seems not to exist. Have you ran the configuration script?"
+        exit 1
+    fi
+    if [ ! -d "$ASSETS_PATH" ]
+    then
+        echo "$ASSETS_PATH seems not to exist. Have you ran the configuration script?"
+        exit 1
+    fi
+
+    if [ ! -f "$WALKINS_PATH/.credentials" ]
+    then
+        echo ".credentials file not found. Have you ran the configuration script?"
+        exit 1
+    fi
+
+    if [ ! -f "$WALKINS_PATH/.walkinsrc" ]
+    then
+        echo ".walkinsrc file not found. Have you ran the configuration script?"
+        exit 1
     fi
 }
 
@@ -48,15 +75,15 @@ function start_tracking_job() {
 function notify_build_status_changed() {
     if [[ "$2" == "blue" ]]
     then
-        notify-send 'Build succeeded' "$1" -i "$CUR_PATH/happy.png"
+        notify-send 'Build succeeded' "$1" -i "$ASSETS_PATH/happy.png"
     else
         if [[ "$2" == "red" ]]
         then
-            notify-send 'Build failed!' "$1" -i "$CUR_PATH/scared.png"
+            notify-send 'Build failed!' "$1" -i "$ASSETS_PATH/scared.png"
         else
             if [[ "$2" == "yellow" ]]
             then
-                notify-send 'Build unstable!' "$1" -i "$CUR_PATH/faint.png"
+                notify-send 'Build unstable!' "$1" -i "$ASSETS_PATH/faint.png"
             fi
         fi
     fi
@@ -65,7 +92,7 @@ function notify_build_status_changed() {
 function notify_job_progress_changed() {
     if [[ "$2" == "building" ]]
     then
-        notify-send 'Build started' "$1" -i "$CUR_PATH/happy.png"
+        notify-send 'Build started' "$1" -i "$ASSETS_PATH/happy.png"
         else if [[ "$2" == "idle" ]]
         then
             job_finished=true
@@ -158,38 +185,47 @@ function track_job() {
 }
 
 function init() {
-    if [ ! -f "$CUR_PATH/.credentials" ]
-    then
-        echo ".credentials file not found. Sorry, but I can't stand that!"
-        exit 1
-    fi
-    if [ ! -f "$CUR_PATH/.walkinsrc" ]
-    then
-        echo ".walkinsrc file not found. Sorry, but I can't stand that!"
-        exit 2
-    fi
+    check_paths
+    read_config
+    main_loop
+}
 
-    main_loop $(cat .credentials) $(cat .walkinsrc)
+function error_notify() {
+    notify-send "Walkins has crashed!" "Please send the log to its creator. Sorry! :("
+}
+
+function error_out() {
+    echo "I have failed you miserably! I'm so sorry. :( Check ~/.walkins/error.log for details."
+    error_notify
+    exit 3
 }
 
 function main_loop() {
     while [ true ]
     do
         i=0
-        raw=$(curl --silent -u "$1" "$2/api/json")
+        raw=$(curl --silent -u "$CREDENTIALS" "$URL/api/json")
+
+        if [[ $raw = "*Error 401 Failed to login*" ]]
+        then
+            echo "Seems like your credentials are not valid for the specified URL. Please check them."
+            exit 2
+        fi
+
         job=$(echo $raw | jq ".jobs[$i]")
+
+        if [ -z "$job" ]
+        then
+            echo "Seems like the URL provided in .walkinsrc is not correct. Please check it."
+            exit 2
+        fi
+
         result=""
 
         while [[ $job != "null" ]]
         do
             color=$(echo $(echo $job | jq ".color") | sed -r 's/\"//g')
             name=$(echo $job | jq ".name" | sed -r 's/\"//g')
-            if ! exists "$color" in colors
-            then
-                echo "Unknown Jenkins status '$color' for job '$name'. Sorry, but I can't stand that!"
-                exit 3
-            fi
-
             progress="idle"
             if [[ $color = *_anime* ]]
             then
@@ -198,6 +234,12 @@ function main_loop() {
             fi
 
             color=$(echo "$color" | sed -r 's/_anime//g')
+            if ! exists "$color" in colors
+            then
+                echo "Unknown Jenkins status '$color' for job '$name'. Sorry, but I can't stand that!"
+                exit 3
+            fi
+
             track_job "$name" "$color" "$progress"
             result+="${colors[$color]}${name}${restore}\n"
             let i++
@@ -205,9 +247,8 @@ function main_loop() {
         done
         clear
         echo -e "$result"
-        sleep 30
+        sleep "$INTERVAL"
     done
 }
 
-get_path
 init
