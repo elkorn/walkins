@@ -19,6 +19,13 @@ INTERVAL=30
 function read_config() {
     config=$(cat "$WALKINS_PATH/.walkinsrc")
     URL=$(echo "$config" | jq ".url" | sed -r 's/\"//g')
+    if [[ "$URL" != */ ]]
+    then
+        URL+=/
+    fi
+
+    URL+="api/json"
+    echo "$URL"
     INTERVAL=$(echo "$config" | jq ".interval")
     CREDENTIALS=$(cat "$WALKINS_PATH/.credentials")
 }
@@ -29,14 +36,14 @@ function log() {
         echo "Provide the message to be logged. Correct usage: log {message} [{type}]"
         return
     fi
-
-    if [ -z "$2" ]
+    type="$2"
+    if [ -z "$type" ]
     then
         # The main purpose of this function is to log errors.
-        2="ERROR"
+        type="ERROR"
     fi
 
-    echo -e "i[$2@$(date)] $1\n" > ~/.walkins/logfile
+    echo -e "[$type @ $(echo $(date))] $1" >> ~/.walkins/logfile
 }
 
 function check_paths() {
@@ -220,7 +227,7 @@ function main_loop() {
     while [ true ]
     do
         i=0
-        raw=$(curl --silent -u "$CREDENTIALS" "$URL/api/json")
+        raw=$(curl --silent -u "$CREDENTIALS" "$URL")
 
         if [[ $raw = "*Error 401 Failed to login*" ]]
         then
@@ -257,6 +264,8 @@ function main_loop() {
                 log "$raw"
                 error_out
             fi
+
+            log "Test error $color"
 
             track_job "$name" "$color" "$progress"
             result+="${colors[$color]}${name}${restore}\n"
