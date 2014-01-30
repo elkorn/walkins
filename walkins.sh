@@ -25,7 +25,6 @@ function read_config() {
     fi
 
     URL+="api/json"
-    echo "$URL"
     INTERVAL=$(echo "$config" | jq ".interval")
     CREDENTIALS=$(cat "$WALKINS_PATH/.credentials")
 }
