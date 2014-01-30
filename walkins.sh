@@ -4,10 +4,10 @@ declare -A colors
 declare -A tracked_jobs
 
 # Blue is really green... Thx Jenkins ;)
-colors=([red]=`tput setaf 1` [blue]=`tput setaf 2` [yellow]=`tput setaf 3`)
-bold_on=`tput bold`
-bold_off=`tput rmso`
+colors=([red]=`tput setaf 1` [blue]=`tput setaf 2` [yellow]=`tput setaf 3` [disabled]="`tput setaf 7`[X] " [aborted]=`tput setaf 7` [notbuilt]=i"`tput setaf 7`[N] ")
+bold=`tput bold`
 restore=`tput sgr0`
+building="${restore}${bold}"
 reset_pos=`tput cup 0 0`
 job_status_change_notified=false
 job_finished=false
@@ -95,20 +95,18 @@ function start_tracking_job() {
 }
 
 function notify_build_status_changed() {
-    if [[ "$2" == "blue" ]]
-    then
-        notify-send 'Build succeeded' "$1" -i "$ASSETS_PATH/happy.png"
-    else
-        if [[ "$2" == "red" ]]
-        then
-            notify-send 'Build failed!' "$1" -i "$ASSETS_PATH/scared.png"
-        else
-            if [[ "$2" == "yellow" ]]
-            then
-                notify-send 'Build unstable!' "$1" -i "$ASSETS_PATH/faint.png"
-            fi
-        fi
-    fi
+    case "$2" in
+        "blue")     notify-send 'Build succeeded' "$1" -i "$ASSETS_PATH/happy.png"
+                    ;;
+        "red")      notify-send 'Build failed' "$1" -i "$ASSETS_PATH/scared.png"
+                    ;;
+        "yellow")   notify-send 'Build unstable' "$1" -i "$ASSETS_PATH/faint.png"
+                    ;;
+        "aborted")  notify-send 'Build aborted' "$1" -i "$ASSETS_PATH/faint.png" # Change the icon.
+                    ;;
+        "disabled")  notify-send 'Build disabled' "$1" -i "$ASSETS_PATH/faint.png" # Change the icon.
+                    ;;
+    esac
 }
 
 function notify_job_progress_changed() {
@@ -249,10 +247,11 @@ function main_loop() {
             color=$(echo $(echo $job | jq ".color") | sed -r 's/\"//g')
             name=$(echo $job | jq ".name" | sed -r 's/\"//g')
             progress="idle"
+
             if [[ $color = *_anime* ]]
             then
                 progress="building"
-                result+="${restore}@ "
+                result+=${building}
             fi
 
             color=$(echo "$color" | sed -r 's/_anime//g')
@@ -263,8 +262,6 @@ function main_loop() {
                 log "$raw"
                 error_out
             fi
-
-            log "Test error $color"
 
             track_job "$name" "$color" "$progress"
             result+="${colors[$color]}${name}${restore}\n"
