@@ -4,7 +4,7 @@ declare -A colors
 declare -A tracked_jobs
 
 # Blue is really green... Thx Jenkins ;)
-colors=([red]=`tput setaf 2` [blue]=`tput setaf 2` [yellow]=`tput setaf 3`)
+colors=([red]=`tput setaf 1` [blue]=`tput setaf 2` [yellow]=`tput setaf 3`)
 bold_on=`tput bold`
 bold_off=`tput rmso`
 restore=`tput sgr0`
@@ -21,6 +21,22 @@ function read_config() {
     URL=$(echo "$config" | jq ".url" | sed -r 's/\"//g')
     INTERVAL=$(echo "$config" | jq ".interval")
     CREDENTIALS=$(cat "$WALKINS_PATH/.credentials")
+}
+
+function log() {
+    if [ -z "$1" ]
+    then
+        echo "Provide the message to be logged. Correct usage: log {message} [{type}]"
+        return
+    fi
+
+    if [ -z "$2" ]
+    then
+        # The main purpose of this function is to log errors.
+        2="ERROR"
+    fi
+
+    echo -e "i[$2@$(date)] $1\n" > ~/.walkins/logfile
 }
 
 function check_paths() {
@@ -195,7 +211,7 @@ function error_notify() {
 }
 
 function error_out() {
-    echo "I have failed you miserably! I'm so sorry. :( Check ~/.walkins/error.log for details."
+    echo "I have failed you miserably! I'm so sorry. :( Check ~/.walkins/logfile for details."
     error_notify
     exit 3
 }
@@ -236,8 +252,10 @@ function main_loop() {
             color=$(echo "$color" | sed -r 's/_anime//g')
             if ! exists "$color" in colors
             then
-                echo "Unknown Jenkins status '$color' for job '$name'. Sorry, but I can't stand that!"
-                exit 3
+                log "Unknown Jenkins status '$color' for job '$name' with index $i."
+                log "$job"
+                log "$raw"
+                error_out
             fi
 
             track_job "$name" "$color" "$progress"

@@ -22,6 +22,7 @@ fi
 
 ln -s ./walkins.sh ~/local/bin/walkins
 
+touch ~/.walkins/logfile
 touch ~/.walkins/.credentials
 echo "username:password" > ~/.walkins/.credentials
 
