@@ -7,6 +7,5 @@ exists()
         echo "Incorrect usage. Should be: exists {key} in {array}"
         return
     fi
-
     eval '[ ${'$3'[$1]+wat} ]'
 }

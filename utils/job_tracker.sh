@@ -9,11 +9,11 @@ start_tracking_job() {
 }
 
 update_job_build_status() {
-    tracked_jobs["$1_status"]="$2"
+    tracked_jobs["${1}_status"]="$2"
 }
 
 update_job_progress() {
-    tracked_jobs["$1_progress"]="$2"
+    tracked_jobs["${1}_progress"]="$2"
 }
 
 handle_build_status_change() {
@@ -31,7 +31,7 @@ handle_build_status_change() {
         return
     fi
 
-    if [[ ${tracked_jobs["$1_status"]} != "$2" ]]
+    if [[ ${tracked_jobs["${1}_status"]} != "$2" ]]
     then
         notify_build_status_changed "$1" "$2"
         update_job_build_status "$1" "$2"
@@ -54,10 +54,14 @@ handle_job_progress_change() {
         return
     fi
 
-    if [[ ${tracked_jobs["$1_progress"]} != "$2" ]]
+    if [[ ${tracked_jobs["${1}_progress"]} != "$2" ]]
     then
-        notify_job_progress_changed "$1" "$2" # TODO: Export this functionality to a plugin.
+        notify_job_progress_changed "$1" "$2"
         update_job_progress "$1" "$2"
+        if [[ "$2" == "idle" ]]
+        then
+            job_finished=true
+        fi
     fi
 }
 
@@ -65,25 +69,25 @@ track_job() {
     if [[ -z "$1" ]]
     then
         echo "Provide the name of the job to be tracked."
-        echo "Correct usage: start_tracking_job {job_name} {current_state} {is_currently_progress}"
+        echo "Correct usage: track_job {job_name} {current_state} {is_currently_progress}"
         return
     fi
 
     if [[ -z "$2" ]]
     then
         echo "Provide the current state of the job whose to be tracked."
-        echo "Correct usage: start_tracking_job {job_name} {current_state} {is_currently_progress}"
+        echo "Correct usage: track_job {job_name} {current_state} {is_currently_progress}"
         return
     fi
 
     if [[ -z "$3" ]]
     then
         echo "Provide the current building status of the job whose to be tracked."
-        echo "Correct usage: start_tracking_job {job_name} {current_state} {is_currently_progress}"
+        echo "Correct usage: track_job {job_name} {current_state} {is_currently_progress}"
         return
     fi
 
-    if exists "$1_status" in tracked_jobs
+    if exists "${1}_status" in "$tracked_jobs"
     then
         handle_build_status_change "$1" "$2"
         handle_job_progress_change "$1" "$3"

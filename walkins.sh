@@ -7,7 +7,6 @@ colors=([red]=`tput setaf 1` [blue]=`tput setaf 2` [yellow]=`tput setaf 3` [disa
 bold=`tput bold`
 restore=`tput sgr0`
 building="${restore}${bold}"
-reset_pos=`tput cup 0 0`
 WALKINS_PATH=~/.walkins
 ASSETS_PATH=$WALKINS_PATH/assets
 
@@ -18,10 +17,8 @@ exists()
         echo "Incorrect usage. Should be: exists {key} in {array}"
         return
     fi
-
     eval '[ ${'$3'[$1]+wat} ]'
 }
-
 
 init() {
     source "$WALKINS_PATH/.install-path"
@@ -32,7 +29,6 @@ init() {
     notify_app_started
     main_loop
 }
-
 
 main_loop() {
     while [ true ]
@@ -69,7 +65,7 @@ main_loop() {
             fi
 
             color=$(echo "$color" | sed -r 's/_anime//g')
-            if ! exists "$color" in colors
+            if ! exists "$color" in "colors"
             then
                 log "Unknown Jenkins status '$color' for job '$name' with index $i."
                 log "$job"

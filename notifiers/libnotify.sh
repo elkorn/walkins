@@ -18,10 +18,6 @@ notify_job_progress_changed() {
     if [[ "$2" == "building" ]]
     then
         notify-send 'Build started' "$1" -i "$ASSETS_PATH/happy.png"
-        else if [[ "$2" == "idle" ]]
-        then
-            job_finished=true
-        fi
     fi
 }
 
