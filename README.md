@@ -1,3 +1,7 @@
+This README is currently out-of-date. Furthermore, the present version of the project suffers from notification bugs. This will change in the next few days.
+
+Also, the installation process has been revamped- The `howto` does no longer apply.
+
 walkins
 =======
 
