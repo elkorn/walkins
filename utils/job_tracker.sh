@@ -16,6 +16,11 @@ update_job_progress() {
     tracked_jobs["${1}_progress"]="$2"
 }
 
+# TODO refactor this into a common function
+job_exists() {
+    return [ -n "${tracked_jobs["$1_status"]}" ]
+}
+
 handle_build_status_change() {
     if [[ -z "$1" ]]
     then
@@ -87,7 +92,7 @@ track_job() {
         return
     fi
 
-    if exists "${1}_status" in "$tracked_jobs"
+    if job_exists "$1"
     then
         handle_build_status_change "$1" "$2"
         handle_job_progress_change "$1" "$3"

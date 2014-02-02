@@ -10,16 +10,6 @@ building="${restore}${bold}"
 WALKINS_PATH=~/.walkins
 ASSETS_PATH=$WALKINS_PATH/assets
 
-exists()
-{
-    if [ "$2" != in ]
-    then
-        echo "Incorrect usage. Should be: exists {key} in {array}"
-        return
-    fi
-    eval '[ ${'$3'[$1]+wat} ]'
-}
-
 init() {
     source "$WALKINS_PATH/.install-path"
     source $INSTALL_PATH/utils/sourcerer.sh
@@ -30,17 +20,23 @@ init() {
     main_loop
 }
 
+# TODO refactor this into a common function
+color_exists() {
+    return [ -n "${colors["$1"]}" ]
+}
+
 main_loop() {
     while [ true ]
     do
         i=0
         raw=$(curl --silent -u "$CREDENTIALS" "$URL")
-
-        if [[ $raw = "*Error 401 Failed to login*" ]]
-        then
-            echo "Seems like your credentials are not valid for the specified URL. Please check them."
-            exit 2
-        fi
+        echo $raw
+        case $raw in
+            "*Error 401 Failed to login*")
+                echo "Seems like your credentials are not valid for the specified URL. Please check them."
+                exit 2
+                ;;
+        esac
 
         job=$(echo $raw | jq ".jobs[$i]")
 
@@ -51,7 +47,6 @@ main_loop() {
         fi
 
         result=""
-
         while [[ $job != "null" ]]
         do
             color=$(echo $(echo $job | jq ".color") | sed -r 's/\"//g')

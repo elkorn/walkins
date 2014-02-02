@@ -37,6 +37,8 @@ source_utils() {
     is_sourced "log" "logger.sh"
     source_util "read_config.sh"
     is_sourced "read_config" "read_config.sh"
+    # source_util "exists.sh"
+    # is_sourced "exists" "exists.sh"
     source_util "job_tracker.sh"
     is_sourced "start_tracking_job" "job_tracker.sh"
     is_sourced "update_job_build_status" "job_tracker.sh"
@@ -46,8 +48,6 @@ source_utils() {
     is_sourced "track_job" "job_tracker.sh"
     source_util "error_handler.sh"
     is_sourced "error_out" "error_handler.sh"
-    # source_util "exists.sh"
-    # is_sourced "exists" "exists.sh"
 
     . $NOTIFIER_PATH
     is_sourced "notify_build_status_changed" "$NOTIFIER_PATH"
