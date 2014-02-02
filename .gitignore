@@ -1,3 +1,4 @@
 *.bak.sh
 .credentials
 .walkinsrc
+utils/exists.sh
