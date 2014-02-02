@@ -1,6 +1,6 @@
 #!/bin/bash
 source_error_out() {
-    echo "Couldn't source $1, correctly. Sorry, but I can't stand that!"
+    echo "Couldn't source $1, correctly (missing $2 function). Sorry, but I can't stand that!"
     exit 4
 }
 
@@ -23,9 +23,9 @@ is_sourced() {
     then
         if [ -n "$2" ]
         then
-            source_error_out "$2"
+            source_error_out "$2" "$1"
         else
-            source_error_out "$1"
+            source_error_out "$1" "$1"
         fi
     fi
 }
@@ -54,4 +54,6 @@ source_utils() {
     is_sourced "notify_job_progress_changed" "$NOTIFIER_PATH"
     is_sourced "notify_app_started" "$NOTIFIER_PATH"
     is_sourced "notify_error" "$NOTIFIER_PATH"
+    is_sourced "notify_credentials_error" "$NOTIFIER_PATH"
+    is_sourced "notify_connection_error" "$NOTIFIER_PATH"
 }

@@ -34,6 +34,7 @@ main_loop() {
         case $raw in
             "*Error 401 Failed to login*")
                 echo "Seems like your credentials are not valid for the specified URL. Please check them."
+                notify_credentials_error
                 exit 2
                 ;;
         esac
@@ -42,7 +43,8 @@ main_loop() {
 
         if [ -z "$job" ]
         then
-            echo "Seems like the URL provided in .walkinsrc is not correct. Please check it."
+            echo "Seems like the URL provided in .walkinsrc is not correct. Or the host is unavailable. Please check both."
+            notify_connection_error
             exit 2
         fi
 

@@ -26,6 +26,13 @@ notify_app_started() {
 }
 
 notify_error() {
-    notify-send "Walkins has crashed!" "Please check the log and send it to the author. Sorry! :("
+    notify-send "Walkins has crashed!" "Please check the log and send it to the author. Sorry! :(" -i "$ASSETS_PATH/painful.png"
 }
 
+notify_connection_error() {
+    notify-send "Walkins cannot connect" "Please verify that the Jenkins is up and the provided URL is correct." -i "$ASSETS_PATH/puzzled.png"
+}
+
+notify_credentials_error() {
+    notify-send "Walkins cannot log on" "Please verify whether provided credentials are correct." -i "$ASSETS_PATH/puzzled.png"
+}
