@@ -1,5 +1,4 @@
 #!/bin/bash
-declare -A tracked_jobs
 job_status_change_notified=false
 job_finished=false
 
@@ -9,16 +8,21 @@ start_tracking_job() {
 }
 
 update_job_build_status() {
-    tracked_jobs["${1}_status"]="$2"
+    tracked_jobs["$1"_status]="$2"
 }
 
 update_job_progress() {
-    tracked_jobs["${1}_progress"]="$2"
+    tracked_jobs["$1"_progress]="$2"
 }
 
 # TODO refactor this into a common function
 job_exists() {
-    return [ -n "${tracked_jobs["$1_status"]}" ]
+    if [ -n "${tracked_jobs["$1"_status]}" ]
+    then
+        return 0
+    else
+        return 1
+    fi
 }
 
 handle_build_status_change() {
@@ -36,8 +40,9 @@ handle_build_status_change() {
         return
     fi
 
-    if [[ ${tracked_jobs["${1}_status"]} != "$2" ]]
+    if [[ "${tracked_jobs["$1"_status]}" != "$2" ]]
     then
+        echo "${tracked_jobs["$1"_status]}" vs "$2"
         notify_build_status_changed "$1" "$2"
         update_job_build_status "$1" "$2"
         job_status_change_notified=true
@@ -59,7 +64,7 @@ handle_job_progress_change() {
         return
     fi
 
-    if [[ ${tracked_jobs["${1}_progress"]} != "$2" ]]
+    if [[ "${tracked_jobs["$1"_progress]}" != "$2" ]]
     then
         notify_job_progress_changed "$1" "$2"
         update_job_progress "$1" "$2"
