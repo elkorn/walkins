@@ -5,6 +5,8 @@ A small Bash utility to watch Jenkins build statuses.
 
 Requires [jq](http://stedolan.github.io/jq/) to be configured as a command to run properly. `jq` is available on apt, yum and the AUR. (let me know if you found it in another popular repository so I can specify it here!)
 
+Awesome icon come from [Manto](http://findicons.com/pack/1039/manto).
+
 Howto
 -------
 
