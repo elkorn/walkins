@@ -3,8 +3,6 @@ walkins
 
 A small Bash utility to watch Jenkins build statuses.
 
-There are currently some reliability issues. A massive overhaul of pretty much everything is on the way within the `edge` branch.
-
 Requires [jq](http://stedolan.github.io/jq/) to be configured as a command to run properly. `jq` is available on apt, yum and the AUR. (let me know if you found it in another popular repository so I can specify it here!)
 
 Howto
@@ -14,7 +12,8 @@ Do a checkout of the master branch and run `./configure.sh` from within the proj
 
 If you don't have `~/local/bin` added to `PATH`, run `sudo ./configure.sh` instead of just `./configure.sh`.
 
-Run walkins in a console window to have an overview of the build statuses and what's currently being built.
+Run walkins in a console window to have an overview of the build statuses and what's currently being built. Successful jobs are green, unstable- yellow and failures- red.
+Also, aborted jobs are displayed as white and jobs that have not been built are preceded with an `[N] `.
 
 Run walkins in the background to have notifications only.
 
