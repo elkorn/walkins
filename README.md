@@ -39,3 +39,8 @@ Todo
 
 See the [issues](https://github.com/elkorn/walkins/issues?state=open).
 
+Contributing
+-------
+
+If you happen to use the tool and want to improve something, feel free to create pull requests. If you have an improvement idea (or a bug) and care to share, create an issue and I'll look into it.
+
