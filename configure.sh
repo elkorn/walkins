@@ -25,7 +25,13 @@ read -p "The URL to the Jenkins view you want to track: " url
 sed -i.bak "s,jenkins_url_here,$url,g" $HOME/.walkins/.walkinsrc
 
 echo "Setting walkins up as a command..."
+
 mkdir -p $HOME/local/bin
+if [ -z $(echo "$PATH" | grep $HOME/local/bin) ]
+then
+    export PATH=$PATH:$HOME/local/bin
+fi
+
 if [ -L $HOME/local/bin/walkins ]
 then
     rm $HOME/local/bin/walkins
